@@ -1,28 +1,44 @@
-WITH MonthlyUserRevenue AS (
-    SELECT 
-        DATE_FORMAT(s.StartSession, '%Y-%m') AS session_month,
-        s.UserID,
-        SUM(i.ItemPrice) AS user_revenue
-    FROM SessionUser s
-    JOIN Purchases p ON s.SessionID = p.SessionID
-    JOIN Item i ON p.ItemID = i.ItemID
-    GROUP BY DATE_FORMAT(s.StartSession, '%Y-%m'), s.UserID
-),
-MonthlyActiveUsers AS (
-    SELECT 
-        DATE_FORMAT(StartSession, '%Y-%m') AS session_month,
-        COUNT(DISTINCT UserID) AS MAU
-    FROM SessionUser
-    GROUP BY DATE_FORMAT(StartSession, '%Y-%m')
-)
-SELECT 
-    m.session_month,
-    m.MAU,
-    COUNT(DISTINCT r.UserID) AS paying_users,
-    ROUND(COALESCE(SUM(r.user_revenue), 0), 2) AS total_revenue,
-    ROUND(COALESCE(SUM(r.user_revenue), 0) / m.MAU, 2) AS ARPU,
-    ROUND(COALESCE(SUM(r.user_revenue), 0) / NULLIF(COUNT(DISTINCT r.UserID), 0), 2) AS ARPPU
-FROM MonthlyActiveUsers m
-LEFT JOIN MonthlyUserRevenue r ON m.session_month = r.session_month
-GROUP BY m.session_month, m.MAU
-ORDER BY m.session_month ASC;
+SELECT SUM(Item.ItemPrice) AS Revenue
+FROM Purchases
+JOIN Item
+ON Purchases.ItemID = Item.ItemID;
+
+SELECT COUNT(UserID) AS Users
+FROM User;
+
+SELECT COUNT(DISTINCT SessionUser.UserID) AS PayingUsers
+FROM Purchases
+JOIN SessionUser
+ON Purchases.SessionID = SessionUser.SessionID;
+
+SELECT SUM(Item.ItemPrice) / COUNT(DISTINCT SessionUser.UserID) AS ARPU
+FROM SessionUser
+LEFT JOIN Purchases
+ON SessionUser.SessionID = Purchases.SessionID
+LEFT JOIN Item
+ON Purchases.ItemID = Item.ItemID;
+
+SELECT SUM(Item.ItemPrice) / COUNT(DISTINCT SessionUser.UserID) AS ARPPU
+FROM Purchases
+JOIN SessionUser
+ON Purchases.SessionID = SessionUser.SessionID
+JOIN Item
+ON Purchases.ItemID = Item.ItemID;
+
+SELECT DATE(SessionUser.StartSession) AS Day, SUM(Item.ItemPrice) / COUNT(DISTINCT SessionUser.UserID) AS ARPU
+FROM SessionUser
+LEFT JOIN Purchases
+ON SessionUser.SessionID = Purchases.SessionID
+LEFT JOIN Item
+ON Purchases.ItemID = Item.ItemID
+GROUP BY DATE(SessionUser.StartSession)
+ORDER BY Day;
+
+SELECT DATE(SessionUser.StartSession) AS Day, SUM(Item.ItemPrice) / COUNT(DISTINCT SessionUser.UserID) AS ARPPU
+FROM Purchases
+JOIN SessionUser
+ON Purchases.SessionID = SessionUser.SessionID
+JOIN Item
+ON Purchases.ItemID = Item.ItemID
+GROUP BY DATE(SessionUser.StartSession)
+ORDER BY Day;

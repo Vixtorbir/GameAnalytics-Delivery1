@@ -1,15 +1,9 @@
-WITH DailyActiveUsers AS (
-    SELECT DATE(StartSession) AS session_date, DATE_FORMAT(StartSession, '%Y-%m') AS session_month, COUNT(DISTINCT UserID) AS DAU 
-    FROM SessionUser 
-    GROUP BY DATE(StartSession), DATE_FORMAT(StartSession, '%Y-%m')
-), 
-MonthlyActiveUsers AS (
-    SELECT DATE_FORMAT(StartSession, '%Y-%m') AS session_month, COUNT(DISTINCT UserID) AS MAU 
-    FROM SessionUser 
-    GROUP BY DATE_FORMAT(StartSession, '%Y-%m')
-) 
-SELECT m.session_month, ROUND(AVG(d.DAU), 2) AS Avg_DAU, m.MAU, ROUND((AVG(d.DAU) / m.MAU) * 100, 2) AS Stickiness_Percentage 
-FROM MonthlyActiveUsers m 
-JOIN DailyActiveUsers d ON m.session_month = d.session_month 
-GROUP BY m.session_month, m.MAU 
-ORDER BY m.session_month ASC;
+SELECT DATE(Today.StartSession) AS Day,
+COUNT(DISTINCT Today.UserID) AS DAU,
+COUNT(DISTINCT Last30.UserID) AS MAU,
+COUNT(DISTINCT Today.UserID) / COUNT(DISTINCT Last30.UserID) AS Stickiness
+FROM SessionUser Today
+JOIN SessionUser Last30
+ON TIMESTAMPDIFF(DAY, DATE(Last30.StartSession), DATE(Today.StartSession)) BETWEEN 0 AND 29
+GROUP BY DATE(Today.StartSession)
+ORDER BY Day;
