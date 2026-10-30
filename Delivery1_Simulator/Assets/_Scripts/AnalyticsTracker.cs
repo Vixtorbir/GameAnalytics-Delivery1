@@ -9,7 +9,7 @@ public class AnalyticsTracker : MonoBehaviour
 {
     public static AnalyticsTracker Instance;
 
-    [SerializeField] private string serverUrl = "https://citmalumnes.upc.es/~marcam5/server/";
+    [SerializeField] private string serverUrl = "https://citmalumnes.upc.es/~marcam5/";
 
     private Dictionary<uint, uint> sessionToPlayer = new Dictionary<uint, uint>();
 
@@ -24,7 +24,7 @@ public class AnalyticsTracker : MonoBehaviour
 
         if (string.IsNullOrEmpty(serverUrl) || serverUrl.Contains("localhost"))
         {
-            serverUrl = "https://citmalumnes.upc.es/~marcam5/server/";
+            serverUrl = "https://citmalumnes.upc.es/~marcam5/";
         }
     }
 

@@ -52,3 +52,4 @@ Thumbs.db
 *.csv
 *.xlsx
 *.md
+server/db.php
