@@ -53,3 +53,4 @@ Thumbs.db
 *.xlsx
 *.md
 server/db.php
+!Excel/KPIs_Delivery1.xlsx
