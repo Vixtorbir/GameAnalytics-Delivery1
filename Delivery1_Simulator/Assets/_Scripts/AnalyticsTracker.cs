@@ -22,7 +22,7 @@ public class AnalyticsTracker : MonoBehaviour
         }
         Instance = this;
 
-        if (string.IsNullOrEmpty(serverUrl) || serverUrl.Contains("localhost"))
+        if (string.IsNullOrEmpty(serverUrl))
         {
             serverUrl = "https://citmalumnes.upc.es/~marcam5/";
         }
